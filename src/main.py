@@ -1,4 +1,5 @@
-from chess import Board, Position, Queen
+from chess import Board
+# from test_collision import test_collision_detection
 
 BOARD_SIZE = 8
 
@@ -7,5 +8,4 @@ if __name__ == "__main__":
     print("8x8 Chess Board:")
     board.print_board_only()
 
-    queen = Queen(Position(rank="b", rank_num=7))
-    print(queen.move_spaces(board))
+    # test_collision_detection()
