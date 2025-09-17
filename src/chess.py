@@ -1,5 +1,5 @@
 import random
-
+from collisions import CollisionGroup
 
 class Piece:
     position: int
@@ -51,6 +51,8 @@ class Board:
                 return True
         return False
     
+
+    
     def check_collisions(self):
         n = len(self.board)
         nbrOfCollisions = 0
@@ -58,6 +60,43 @@ class Board:
             if self.check_collision(i, n):
                 nbrOfCollisions += 1
         return nbrOfCollisions
+    
+    def find_collision_groups(self):
+        n = len(self.board)
+        slash_diagonals = {}
+        backslash_diagonals = {}
+        collision_groups = []
+        
+        for row_idx, piece in enumerate(self.board):
+            row = row_idx + 1
+            col = piece.position
+            
+            slash_id = row + col
+            backslash_id = row - col
+            
+            if slash_id not in slash_diagonals:
+                slash_diagonals[slash_id] = []
+            slash_diagonals[slash_id].append((row, col))
+            
+            if backslash_id not in backslash_diagonals:
+                backslash_diagonals[backslash_id] = []
+            backslash_diagonals[backslash_id].append((row, col))
+        
+    def create_collisiongroup(self, i, n):
+        for j in range(i + 1, n):
+            piece_row = i + 1
+            piece_col = self.board[i].position
+
+            target_row = j + 1
+            target_col = self.board[j].position
+
+            # Check diagonal collision
+            row_diff = abs(target_row - piece_row)
+            col_diff = abs(target_col - piece_col)
+
+            if row_diff == col_diff:
+                return True
+        return False
             
     def evaluate(self):
         if self.check_collisions():
