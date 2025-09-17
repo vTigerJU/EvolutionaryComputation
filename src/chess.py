@@ -34,30 +34,39 @@ class Board:
 
             random.shuffle(board)
             self.board = board
+            
+    def check_collision(self, i, n):
+        for j in range(i + 1, n):
+            piece_row = i + 1
+            piece_col = self.board[i].position
 
-    def check_collision(self):
+            target_row = j + 1
+            target_col = self.board[j].position
+
+            if piece_col == target_col:
+                return True
+
+            # Check diagonal collision
+            row_diff = abs(target_row - piece_row)
+            col_diff = abs(target_col - piece_col)
+
+            if row_diff == col_diff:
+                return True
+        return False
+    
+    def check_collisions(self):
         n = len(self.board)
         for i in range(n):
-            for j in range(i + 1, n):
-                piece_row = i + 1
-                piece_col = self.board[i].position
-
-                target_row = j + 1
-                target_col = self.board[j].position
-
-                if piece_col == target_col:
-                    return True
-
-                # Check diagonal collision
-                row_diff = abs(target_row - piece_row)
-                col_diff = abs(target_col - piece_col)
-
-                if row_diff == col_diff:
-                    return True
-        return False
-
+            if self.check_collision(i, n):
+                return True
+            
     def evaluate(self):
+        if self.check_collisions():
+            print("Collision detected!")
+        else:   
+            print("No collisions.")
         pass
+
 
     def print_board_only(self):
         print()
