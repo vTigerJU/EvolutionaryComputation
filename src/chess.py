@@ -43,9 +43,6 @@ class Board:
             target_row = j + 1
             target_col = self.board[j].position
 
-            if piece_col == target_col:
-                return True
-
             # Check diagonal collision
             row_diff = abs(target_row - piece_row)
             col_diff = abs(target_col - piece_col)
@@ -56,9 +53,11 @@ class Board:
     
     def check_collisions(self):
         n = len(self.board)
+        nbrOfCollisions = 0
         for i in range(n):
             if self.check_collision(i, n):
-                return True
+                nbrOfCollisions += 1
+        return nbrOfCollisions
             
     def evaluate(self):
         if self.check_collisions():
