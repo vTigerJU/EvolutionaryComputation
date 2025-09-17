@@ -60,11 +60,16 @@ class Board:
         return nbrOfCollisions
             
     def evaluate(self):
-        if self.check_collisions():
-            print("Collision detected!")
+        collisions = self.check_collisions()
+        if collisions > 0:
+            print(f"Collision detected! {collisions} collisions.")
         else:   
             print("No collisions.")
-        pass
+        return collisions
+    
+    def fitness(self):
+        """Return fitness score (number of collisions - lower is better)"""
+        return self.check_collisions()
 
 
     def print_board_only(self):
