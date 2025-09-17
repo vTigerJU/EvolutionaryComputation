@@ -68,7 +68,6 @@ class Board:
         return collisions
     
     def fitness(self):
-        """Return fitness score (number of collisions - lower is better)"""
         return self.check_collisions()
 
 
