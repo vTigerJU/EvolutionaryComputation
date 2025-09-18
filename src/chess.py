@@ -7,17 +7,11 @@ class Piece:
     def __init__(self, rank) -> None:
         self.position = rank
 
-    def place(self, position: int):
-        self.position = position
-
     def __str__(self) -> str:
         return f"({self.position})"
 
-    def __eq__(self, value: object) -> bool:
-        """Overrides the default implementation"""
-        if isinstance(value, Piece):
-            return self.position == value.position
-        return False
+    def __repr__(self) -> str:
+        return f"{self.position}"
 
 
 class Board:
@@ -32,21 +26,20 @@ class Board:
             random.shuffle(board)
             self.board = board
 
-    def check_collision(self, i, n):
-        for j in range(i, n):
-            # skip self collision with self
-            if i == j:
-                continue
+    def __str__(self) -> str:
+        return str([pos.position for pos in self.board])
 
+    def check_collision(self, i, n):
+        for j in range(i + 1, n):
             piece_row = i + 1
             piece_col = self.board[i].position
 
             target_row = j + 1
             target_col = self.board[j].position
 
-            # Check Vertical and Horizantal collision // Not Needed, Will never return True
-           # if piece_row == target_row or piece_col == target_col:
-            #    return True
+            # Check Vertical and Horizantal collision
+            if piece_row == target_row or piece_col == target_col:
+                return True
 
             # Check diagonal collision
             row_diff: int = abs(target_row - piece_row)
