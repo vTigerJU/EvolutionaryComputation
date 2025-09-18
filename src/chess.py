@@ -81,12 +81,11 @@ class Board:
     def get_conflicted_queens(self):
         # Find which queens are involved in diagonal conflicts
         # and store them in a list.
-        n = len(self.board)
         conflicted_queens = []
 
-        for i in range(n):
-            if self.check_collision(i, n):
-                conflicted_queens.append(i + 1)
+        for i, piece in enumerate(self.board):
+            if self.check_collision(i, len(self.board)):
+                conflicted_queens.append(f"({i + 1} {piece.position})")
 
         return conflicted_queens
 
