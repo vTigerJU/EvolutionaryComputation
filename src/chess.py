@@ -44,9 +44,9 @@ class Board:
             target_row = j + 1
             target_col = self.board[j].position
 
-            # Check Vertical and Horizantal collision
-            if piece_row == target_row or piece_col == target_col:
-                return True
+            # Check Vertical and Horizantal collision // Not Needed, Will never return True
+           # if piece_row == target_row or piece_col == target_col:
+            #    return True
 
             # Check diagonal collision
             row_diff: int = abs(target_row - piece_row)
