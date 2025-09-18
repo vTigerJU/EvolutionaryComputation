@@ -1,5 +1,5 @@
 from chess import Board
-from src.mutation import Crossover_Strategy, Mutate_Strategy, Mutation_Strategy
+from mutation import Crossover_Strategy, Mutate_Strategy, Mutation_Strategy
 # from test_collision import test_collision_detection
 
 BOARD_SIZE = 5

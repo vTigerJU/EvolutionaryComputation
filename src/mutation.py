@@ -1,4 +1,4 @@
-from src.chess import Piece
+from chess import Piece
 import random
 
 
