@@ -19,7 +19,7 @@ def test_collision_detection():
 
     for board_config, description in test_cases:
         board = Board(board_config)
-        has_collision = board.check_collision()
+        has_collision = board.check_collisions() != 0
 
         print(f"Board: {board_config}")
         print(f"Description: {description}")

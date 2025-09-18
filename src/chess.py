@@ -28,10 +28,7 @@ class Board:
             self.board = [Piece(piece) for piece in size]
 
         if type(size) is int:
-            board = []
-            for rank_num in range(1, size + 1):
-                board.append(Piece(rank_num))
-
+            board = [Piece(rank_num) for rank_num in range(1, size + 1)]
             random.shuffle(board)
             self.board = board
 
@@ -52,8 +49,8 @@ class Board:
                 return True
 
             # Check diagonal collision
-            row_diff = abs(target_row - piece_row)
-            col_diff = abs(target_col - piece_col)
+            row_diff: int = abs(target_row - piece_row)
+            col_diff: int = abs(target_col - piece_col)
 
             if row_diff == col_diff:
                 return True
