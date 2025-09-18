@@ -4,14 +4,14 @@ from chess import Board
 BOARD_SIZE = 5
 
 if __name__ == "__main__":
-    board = Board(BOARD_SIZE)
+    board = Board([2, 3, 4, 1])
     print("Chess Board:")
     board.print_board_only()
-    
+
     # Test fitness score
     fitness = board.fitness()
     print(f"Fitness score: {fitness}")
-    
+
     # Test conflicted queens
     print(f"Conflicted queens: {board.get_conflicted_queens()}")
 

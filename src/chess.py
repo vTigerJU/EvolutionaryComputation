@@ -1,5 +1,6 @@
 import random
 
+
 class Piece:
     position: int
 
@@ -33,9 +34,9 @@ class Board:
 
             random.shuffle(board)
             self.board = board
-            
+
     def check_collision(self, i, n):
-        for j in range(i + 1, n):
+        for j in range(i, n):
             piece_row = i + 1
             piece_col = self.board[i].position
 
@@ -49,7 +50,7 @@ class Board:
             if row_diff == col_diff:
                 return True
         return False
-    
+
     def check_collisions(self):
         n = len(self.board)
         nbrOfCollisions = 0
@@ -57,30 +58,29 @@ class Board:
             if self.check_collision(i, n):
                 nbrOfCollisions += 1
         return nbrOfCollisions
-            
+
     def evaluate(self):
         collisions = self.check_collisions()
         if collisions > 0:
             print(f"Collision detected! {collisions} collisions.")
-        else:   
+        else:
             print("No collisions.")
         return collisions
-    
+
     def fitness(self):
         return self.check_collisions()
-    
+
     def get_conflicted_queens(self):
-        #Find which queens are involved in diagonal conflicts
-        #and store them in a list.
+        # Find which queens are involved in diagonal conflicts
+        # and store them in a list.
         n = len(self.board)
         conflicted_queens = []
-        
+
         for i in range(n):
             if self.check_collision(i, n):
-                conflicted_queens.append(i)
-        
+                conflicted_queens.append(i + 1)
+
         return conflicted_queens
-    
 
     def print_board_only(self):
         print()
