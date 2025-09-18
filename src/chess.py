@@ -37,11 +37,19 @@ class Board:
 
     def check_collision(self, i, n):
         for j in range(i, n):
+            # skip self collision with self
+            if i == j:
+                continue
+
             piece_row = i + 1
             piece_col = self.board[i].position
 
             target_row = j + 1
             target_col = self.board[j].position
+
+            # Check Vertical and Horizantal collision
+            if piece_row == target_row or piece_col == target_col:
+                return True
 
             # Check diagonal collision
             row_diff = abs(target_row - piece_row)
