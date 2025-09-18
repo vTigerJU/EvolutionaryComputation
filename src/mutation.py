@@ -2,9 +2,11 @@ from chess import Board, Piece
 import random
 import copy
 
+# https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_mutation.htm
+
 
 class Mutation_Strategy:
-    def __init__(self, strategies: list["Mutation_Strategy"]) -> None:
+    def __init__(self, strategies: list["Mutation_Strategy"] = []) -> None:
         self.strategies = strategies
 
     def execute(self, population: list[Board]):
@@ -18,15 +20,13 @@ class Mutation_Strategy:
 
 
 class Strategy_Mutate(Mutation_Strategy):
-    def __init__(
-        self, mutation_rate: float = 0.1, strategies: list[Mutation_Strategy] = []
-    ) -> None:
-        super().__init__(strategies)
+    """Mutation by switching two columns/row"""
+
+    def __init__(self, mutation_rate: float = 0.1) -> None:
+        super().__init__()
         self.mutation_rate = mutation_rate
 
     def mutate(self, population: list[Board]):
-        """Mutation by switching two columns"""
-
         for board in population:
             if random.random() < self.mutation_rate:
                 self._mutate_(board.board)
@@ -37,14 +37,13 @@ class Strategy_Mutate(Mutation_Strategy):
 
 
 class Strategy_Crossover(Mutation_Strategy):
-    def __init__(
-        self, mutation_rate: float = 0.8, strategies: list["Mutation_Strategy"] = []
-    ) -> None:
-        super().__init__(strategies)
+    """Crossover mutation - swap two node segment at random index"""
+
+    def __init__(self, mutation_rate: float = 0.8) -> None:
+        super().__init__()
         self.mutation_rate = mutation_rate
 
     def mutate(self, population: list[Board]):
-        """Swaps last half from each node"""
         size = len(population) // 10  # keep top 10%
         new_population = population[:size]
 
@@ -74,3 +73,35 @@ class Strategy_Crossover(Mutation_Strategy):
         copy_b.board[start:end] = nodeA_slice
 
         return (copy_a, copy_b)
+
+
+class Strategy_ScrambleMutate(Mutation_Strategy):
+    """Scramble mutation - shuffle a random segment"""
+
+    def __init__(self, mutation_rate=0.05) -> None:
+        super().__init__()
+        self.mutation_rate = mutation_rate
+
+    def mutate(self, population: list[Board]):
+        for board in population:
+            if random.random() < self.mutation_rate:
+                size = len(board.board)
+                start, end = sorted(random.sample(range(size), 2))
+                segment = board.board[start:end]
+                random.shuffle(segment)
+                board.board[start:end] = segment
+
+
+class Strategy_InversionMutate(Mutation_Strategy):
+    """Inversion mutation - reverse a random segment"""
+
+    def __init__(self, mutation_rate=0.05) -> None:
+        super().__init__()
+        self.mutation_rate = mutation_rate
+
+    def mutate(self, population: list[Board]):
+        for board in population:
+            if random.random() < self.mutation_rate:
+                size = len(board.board)
+                start, end = sorted(random.sample(range(size), 2))
+                board.board[start:end] = reversed(board.board[start:end])

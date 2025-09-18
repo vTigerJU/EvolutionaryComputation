@@ -1,6 +1,12 @@
 import time
 from chess import Board
-from mutation import Strategy_Crossover, Strategy_Mutate, Mutation_Strategy
+from mutation import (
+    Strategy_Crossover,
+    Strategy_InversionMutate,
+    Strategy_Mutate,
+    Mutation_Strategy,
+    Strategy_ScrambleMutate,
+)
 
 BOARD_SIZE = 5
 maximum_generation = 300
@@ -36,10 +42,11 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
 if __name__ == "__main__":
     mutation_strats = Mutation_Strategy(
         [
-            Strategy_Crossover(mutation_rate=0.8),
-            Strategy_Mutate(mutation_rate=0.2),
+            Strategy_Crossover(mutation_rate=0.7),
             Strategy_Mutate(mutation_rate=0.1),
+            Strategy_ScrambleMutate(mutation_rate=0.05),
+            Strategy_InversionMutate(mutation_rate=0.05),
         ]
     )
     for i in range(10):
-        print(solve(20, mutation_strats))
+        print(solve(10, mutation_strats))
