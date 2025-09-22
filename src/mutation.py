@@ -39,9 +39,9 @@ class Strategy_Swap_Mutation(Mutation_Strategy):
 class Strategy_Crossover(Mutation_Strategy):
     """Crossover operation - swap two node segment at random index"""
 
-    def __init__(self, mutation_rate: float = 0.8) -> None:
+    def __init__(self, crossover_probability: float = 0.8) -> None:
         super().__init__()
-        self.mutation_rate = mutation_rate
+        self.mutation_rate = crossover_probability
 
     def mutate(self, population: list[Board]):
         size = len(population) // 10  # keep top 10%

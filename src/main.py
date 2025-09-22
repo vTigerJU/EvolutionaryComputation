@@ -42,7 +42,7 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
 if __name__ == "__main__":
     mutation_strats = Mutation_Strategy(
         [
-            Strategy_Crossover(mutation_rate=0.7),
+            Strategy_Crossover(crossover_probability=0.7),
             Strategy_Swap_Mutation(mutation_rate=0.1),
             Strategy_Scramble_Mutation(mutation_rate=0.05),
             Strategy_Inversion_Mutation(mutation_rate=0.05),
