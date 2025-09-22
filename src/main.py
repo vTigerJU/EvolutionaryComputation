@@ -9,16 +9,20 @@ from mutation import (
 )
 
 BOARD_SIZE = 10
-maximum_generation = 300
-population_size = 200
+MAXIMUM_GENERATION = 300
+POPULATION_SIZE = 200
+CROSSOVER_PROBABILITY = 0.7
+SWAP_RATE = 0.1
+SCRAMBLE_RATE = 0.05
+INVERSION_RATE = 0.05
 
 
 def solve(n_size, mutation_strategy: Mutation_Strategy):
     start = time.time()
 
-    population = [Board(n_size) for _ in range(population_size)]
+    population = [Board(n_size) for _ in range(POPULATION_SIZE)]
 
-    for generation in range(maximum_generation):
+    for generation in range(MAXIMUM_GENERATION):
         population.sort(key=lambda x: x.fitness())
         best = population[0]
 
@@ -35,17 +39,17 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
         mutation_strategy.execute(population)
 
         # No solution found.
-        if generation + 1 == maximum_generation:
+        if generation + 1 == MAXIMUM_GENERATION:
             return best.fitness()
 
 
 if __name__ == "__main__":
     mutation_strats = Mutation_Strategy(
         [
-            Strategy_Crossover(crossover_probability=0.7),
-            Strategy_Swap_Mutation(mutation_rate=0.1),
-            Strategy_Scramble_Mutation(mutation_rate=0.05),
-            Strategy_Inversion_Mutation(mutation_rate=0.05),
+            Strategy_Crossover(crossover_probability=CROSSOVER_PROBABILITY),
+            Strategy_Swap_Mutation(mutation_rate=SWAP_RATE),
+            Strategy_Scramble_Mutation(mutation_rate=SCRAMBLE_RATE),
+            Strategy_Inversion_Mutation(mutation_rate=INVERSION_RATE),
         ]
     )
     for i in range(10):
