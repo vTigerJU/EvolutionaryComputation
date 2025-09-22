@@ -19,7 +19,7 @@ class Mutation_Strategy:
         pass
 
 
-class Strategy_Mutate(Mutation_Strategy):
+class Strategy_Swap_Mutation(Mutation_Strategy):
     """Mutation by switching two columns/row"""
 
     def __init__(self, mutation_rate: float = 0.1) -> None:
@@ -37,7 +37,7 @@ class Strategy_Mutate(Mutation_Strategy):
 
 
 class Strategy_Crossover(Mutation_Strategy):
-    """Crossover mutation - swap two node segment at random index"""
+    """Crossover operation - swap two node segment at random index"""
 
     def __init__(self, mutation_rate: float = 0.8) -> None:
         super().__init__()
@@ -75,7 +75,7 @@ class Strategy_Crossover(Mutation_Strategy):
         return (copy_a, copy_b)
 
 
-class Strategy_ScrambleMutate(Mutation_Strategy):
+class Strategy_Scramble_Mutation(Mutation_Strategy):
     """Scramble mutation - shuffle a random segment"""
 
     def __init__(self, mutation_rate=0.05) -> None:
@@ -92,7 +92,7 @@ class Strategy_ScrambleMutate(Mutation_Strategy):
                 board.board[start:end] = segment
 
 
-class Strategy_InversionMutate(Mutation_Strategy):
+class Strategy_Inversion_Mutation(Mutation_Strategy):
     """Inversion mutation - reverse a random segment"""
 
     def __init__(self, mutation_rate=0.05) -> None:

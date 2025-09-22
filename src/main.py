@@ -2,13 +2,13 @@ import time
 from chess import Board
 from mutation import (
     Strategy_Crossover,
-    Strategy_InversionMutate,
-    Strategy_Mutate,
+    Strategy_Inversion_Mutation,
+    Strategy_Swap_Mutation,
     Mutation_Strategy,
-    Strategy_ScrambleMutate,
+    Strategy_Scramble_Mutation,
 )
 
-BOARD_SIZE = 5
+BOARD_SIZE = 10
 maximum_generation = 300
 population_size = 200
 
@@ -43,9 +43,9 @@ if __name__ == "__main__":
     mutation_strats = Mutation_Strategy(
         [
             Strategy_Crossover(mutation_rate=0.7),
-            Strategy_Mutate(mutation_rate=0.1),
-            Strategy_ScrambleMutate(mutation_rate=0.05),
-            Strategy_InversionMutate(mutation_rate=0.05),
+            Strategy_Swap_Mutation(mutation_rate=0.1),
+            Strategy_Scramble_Mutation(mutation_rate=0.05),
+            Strategy_Inversion_Mutation(mutation_rate=0.05),
         ]
     )
     for i in range(10):

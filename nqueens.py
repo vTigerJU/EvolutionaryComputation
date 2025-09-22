@@ -40,6 +40,36 @@ def crossover(nodeA, nodeB):
 
     return nodeA, nodeB
 
+#paper based crossover
+def crossover_twopoint(nodeA, nodeB):
+    """Swaps segments between two points from each node"""
+    size = len(nodeA)
+    point1 = random.randint(0, size - 1)
+    point2 = random.randint(0, size - 1)
+    if point1 > point2:
+        point1, point2 = point2, point1
+
+    # Create children with None values
+    childA = [None] * size
+    childB = [None] * size
+
+    # Copy the segment from parents to children
+    childA[point1:point2] = nodeA[point1:point2]
+    childB[point1:point2] = nodeB[point1:point2]
+
+    # Fill in the remaining positions
+    def fill_child(child, parent):
+        current_pos = point2 % size
+        for value in parent:
+            if value not in child:
+                child[current_pos] = value
+                current_pos = (current_pos + 1) % size
+
+    fill_child(childA, nodeB)
+    fill_child(childB, nodeA)
+
+    return childA, childB
+
 
 def mutate(node):
     """Mutation by switching two columns"""
