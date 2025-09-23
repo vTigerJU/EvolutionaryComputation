@@ -5,6 +5,8 @@ maximum_generation = 300
 population_size = 200
 mutation_rate = 0.2
 crossover_rate = 0.2
+elite_frac = 0.2         # fraction of population preserved unchanged
+parent_pool_frac = 0.40   # fraction of top population used for parent selection (must be >= elite_frac)
 
 
 def random_solution(size):
@@ -90,6 +92,10 @@ def solve(n_size, do_crossover):
     start = time.time()
     population = [random_solution(n_size) for _ in range(population_size)]
 
+     # derive counts from fractions (ensure at least 1 elite and parent pool >= elites)
+    elite_k = max(1, int(round(elite_frac * population_size)))
+    parent_k = max(elite_k, int(round(parent_pool_frac * population_size)))
+
     for generation in range(maximum_generation):
         population.sort(key=count_conflicts)
         best = population[0]
@@ -103,14 +109,14 @@ def solve(n_size, do_crossover):
                 "found": True,
             }
 
-        new_pop = population[:50]
+        new_pop = population[:elite_k]
         if do_crossover:
             for i in range(20):
                 nodeA, nodeB = crossover(new_pop[i], new_pop[i * 2])
                 new_pop.append(nodeA)
                 new_pop.append(nodeB)
         while len(new_pop) < population_size:
-            parent = random.choice(population[:50])[:]
+            parent = random.choice(population[:parent_k])[:]
             mutate(parent)
             new_pop.append(parent)
 
@@ -123,6 +129,6 @@ def solve(n_size, do_crossover):
 if __name__ == "__main__":
     for i in range(20):
         print(solve(80, False))
-    print("crossover")
-    for i in range(20):
-        print(solve(80, True))
+    #print("crossover")
+    #for i in range(20):
+     #   print(solve(80, True))
