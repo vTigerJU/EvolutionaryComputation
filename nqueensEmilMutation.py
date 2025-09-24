@@ -5,7 +5,7 @@ maximum_generation = 500
 population_size = 1000
 #mutation_rate = 0.2
 #crossover_rate = 0.2
-elite_frac = 0.1         # fraction of population preserved unchanged
+elite_frac = 0.1        # fraction of population preserved unchanged
 parent_pool_frac = 0.40   # fraction of top population used for parent selection (must be >= elite_frac)
 
 
@@ -31,6 +31,17 @@ def count_conflicts(node):
                 count += 1
     return count
 
+def count_conflicts_fast(node):
+    d1, d2 = {}, {}
+    for c, r in enumerate(node):
+        d1[c - r] = d1.get(c - r, 0) + 1
+        d2[c + r] = d2.get(c + r, 0) + 1
+    conf = 0
+    for k in d1.values():
+        if k > 1: conf += k*(k-1)//2
+    for k in d2.values():
+        if k > 1: conf += k*(k-1)//2
+    return conf
 
 def crossover(nodeA, nodeB):
     """Swaps last half from each node"""
@@ -97,9 +108,9 @@ def solve(n_size, do_crossover):
     parent_k = max(elite_k, int(round(parent_pool_frac * population_size)))
 
     for generation in range(maximum_generation):
-        population.sort(key=count_conflicts)
+        population.sort(key=count_conflicts_fast)
         best = population[0]
-        if count_conflicts(best) == 0:
+        if count_conflicts_fast(best) == 0:
             elapsed = time.time() - start
             return {
                 "n": n_size,
@@ -123,7 +134,7 @@ def solve(n_size, do_crossover):
         population = new_pop
 
         if generation + 1 == maximum_generation:
-            return count_conflicts(best)
+            return count_conflicts_fast(best)
 
 
 if __name__ == "__main__":
