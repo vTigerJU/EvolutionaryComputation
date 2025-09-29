@@ -8,9 +8,13 @@ from mutation import (
     Strategy_Scramble_Mutation,
 )
 
-BOARD_SIZE = 10
+# Setup
+BOARD_SIZE = 20
+POPULATION_SIZE = 2_000
 MAXIMUM_GENERATION = 300
-POPULATION_SIZE = 200
+RERUN_AMOUNT = 10
+
+# Probability
 CROSSOVER_PROBABILITY = 0.7
 SWAP_RATE = 0.1
 SCRAMBLE_RATE = 0.05
@@ -36,6 +40,9 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
                 "found": True,
             }
 
+        # log n-th board.
+        # n_th_board = population[len(population) - 10]
+        # print(n_th_board, n_th_board.fitness())
         mutation_strategy.execute(population)
 
         # No solution found.
@@ -52,5 +59,5 @@ if __name__ == "__main__":
             Strategy_Inversion_Mutation(mutation_rate=INVERSION_RATE),
         ]
     )
-    for i in range(10):
-        print(solve(10, mutation_strats))
+    for i in range(RERUN_AMOUNT):
+        print(solve(BOARD_SIZE, mutation_strats))
