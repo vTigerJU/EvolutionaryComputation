@@ -75,7 +75,7 @@ def mutate(node):
     """Mutation by switching two columns"""
     i, j = random.sample(range(len(node)), 2)
     node[i], node[j] = node[j], node[i]
-
+    
 
 def repair(node):
     rows = set(range(len(node)))
