@@ -23,6 +23,11 @@ SCRAMBLE_RATE = 0.05
 INVERSION_RATE = 0.05
 
 
+def write_to_file(board: Board) -> None:
+    with open("./solution.txt", "a+") as f:
+        print(board.board, file=f)
+
+
 def solve(n_size, mutation_strategy: Mutation_Strategy):
     start = time.time()
 
@@ -34,6 +39,9 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
 
         if best.fitness() == 0:
             elapsed = time.time() - start
+            # Write the solution into file.
+            write_to_file(best)
+
             return {
                 "n": n_size,
                 "gen": generation,
@@ -45,12 +53,19 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
         # log n-th board.
         # n_th_board = population[len(population) - 10]
         # print(n_th_board.board, n_th_board.fitness())
-        print("Current:", best.fitness(), "-", best.board)
+        print(
+            "Current score:",
+            best.fitness(),
+            "-",
+            best.board,
+            f"{(time.time() - start) * 1000:.1f}ms",
+        )
         mutation_strategy.execute(population)
 
         # No solution found.
         if generation + 1 == MAXIMUM_GENERATION:
-            return best.fitness()
+            write_to_file(best)
+            return f"No perfect solution found: current fitness: {best.fitness()}"
 
 
 if __name__ == "__main__":
