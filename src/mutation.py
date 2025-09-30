@@ -1,19 +1,27 @@
-from chess import Board, Piece
+import time
+from chess import Board
 import random
-import copy
+import numpy as np
 
 # https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_mutation.htm
 
 
 class Mutation_Strategy:
-    def __init__(self, strategies: list["Mutation_Strategy"] = []) -> None:
+    def __init__(
+        self, strategies: list["Mutation_Strategy"] = [], verbose=False
+    ) -> None:
         self.strategies = strategies
+        self.verbose = verbose
 
     def execute(self, population: list[Board]):
         self.mutate(population)
-
         for strategy in self.strategies:
-            strategy.execute(population)
+            start = time.time()
+            strategy.mutate(population)
+            elapsed = time.time() - start
+
+            if self.verbose:
+                print(f"{strategy.__class__.__name__}: {elapsed * 1000:.2f}ms")
 
     def mutate(self, population: list[Board]):
         pass
@@ -27,12 +35,15 @@ class Strategy_Swap_Mutation(Mutation_Strategy):
         self.mutation_rate = mutation_rate
 
     def mutate(self, population: list[Board]):
-        for board in population:
-            if random.random() < self.mutation_rate:
+        # numpy random generates between 0-1.
+        batch_generation = np.random.random(len(population)) < self.mutation_rate
+
+        for board, should_mutate in zip(population, batch_generation):
+            if should_mutate:
                 self._mutate_(board.board)
 
-    def _mutate_(self, position: list[Piece]):
-        i, j = random.sample(range(len(position)), 2)
+    def _mutate_(self, position: list[int]):
+        i, j = np.random.choice(len(position), 2, replace=False)
         position[i], position[j] = position[j], position[i]
 
 
@@ -44,29 +55,41 @@ class Strategy_Crossover(Mutation_Strategy):
         self.mutation_rate = crossover_probability
 
     def mutate(self, population: list[Board]):
-        size = len(population) // 10  # keep top 10%
-        new_population = population[:size]
+        size = max(1, len(population) // 10)  # keep top 10%
+
+        # pre calculate fitness scores. for faster lookup/find
+        fitness_scores = np.array([board.fitness() for board in population])
+
+        top_indices = np.argsort(fitness_scores)[:size]
+        new_population = [population[i].clone() for i in top_indices]
 
         while len(new_population) < len(population):
+            choice_range = range(size, len(population))
+
             if random.random() < self.mutation_rate:
                 # Sample few random and pick the best.
-                nodeA = min(random.sample(population, size), key=lambda x: x.fitness())
-                nodeB = min(random.sample(population, size), key=lambda x: x.fitness())
-                # Pick only random.
-                # nodeA = random.choice(population)
-                # nodeB = random.choice(population)
-                new_population.extend(list(self.crossover(nodeA, nodeB)))
+                node_a = np.random.choice(choice_range, size, replace=False)
+                node_b = np.random.choice(choice_range, size, replace=False)
+
+                # Get the best score.
+                nodeA = population[np.argmin(fitness_scores[node_a])]
+                nodeB = population[np.argmin(fitness_scores[node_b])]
+
+                new_population.extend(self.crossover(nodeA, nodeB))
             else:
-                node = random.choice(population)
-                new_population.append(copy.deepcopy(node))
+                nodes = np.random.choice(choice_range, size, replace=False)
+                node_best = population[np.argmin(fitness_scores[nodes])]
+                new_population.append(node_best)
 
         population[:] = new_population[: len(population)]
 
     def crossover(self, nodeA: Board, nodeB: Board):
-        copy_a = copy.deepcopy(nodeA)
-        copy_b = copy.deepcopy(nodeB)
+        copy_a = nodeA.clone()
+        copy_b = nodeB.clone()
 
-        start, end = sorted(random.sample(range(len(copy_a.board)), 2))
+        # indices = np.random.choice(len(copy_a.board), 2, replace=False)
+        start, end = np.sort(np.random.choice(len(copy_a.board), 2, replace=False))
+
         nodeA_slice = copy_a.board[start:end]
         nodeB_slice = copy_b.board[start:end]
         copy_a.board[start:end] = nodeB_slice
@@ -83,12 +106,15 @@ class Strategy_Scramble_Mutation(Mutation_Strategy):
         self.mutation_rate = mutation_rate
 
     def mutate(self, population: list[Board]):
-        for board in population:
-            if random.random() < self.mutation_rate:
-                size = len(board.board)
-                start, end = sorted(random.sample(range(size), 2))
-                segment = board.board[start:end]
-                random.shuffle(segment)
+        batch_generation = np.random.random(len(population)) < self.mutation_rate
+
+        for board, should_mutate in zip(population, batch_generation):
+            if should_mutate:
+                start, end = np.sort(
+                    np.random.choice(len(board.board), 2, replace=False)
+                )
+                segment = board.board[start:end].copy()
+                np.random.shuffle(segment)
                 board.board[start:end] = segment
 
 
@@ -100,8 +126,12 @@ class Strategy_Inversion_Mutation(Mutation_Strategy):
         self.mutation_rate = mutation_rate
 
     def mutate(self, population: list[Board]):
-        for board in population:
-            if random.random() < self.mutation_rate:
-                size = len(board.board)
-                start, end = sorted(random.sample(range(size), 2))
-                board.board[start:end] = reversed(board.board[start:end])
+        batch_generation = np.random.random(len(population)) < self.mutation_rate
+
+        for board, should_mutate in zip(population, batch_generation):
+            if should_mutate:
+                start, end = np.sort(
+                    np.random.choice(len(board.board), 2, replace=False)
+                )
+
+                board.board[start:end] = list(reversed(board.board[start:end]))

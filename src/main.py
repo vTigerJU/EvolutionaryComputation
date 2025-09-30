@@ -10,7 +10,7 @@ from mutation import (
 
 # Setup
 BOARD_SIZE = 20
-POPULATION_SIZE = 2_000
+POPULATION_SIZE = 500
 MAXIMUM_GENERATION = 300
 RERUN_AMOUNT = 10
 
@@ -42,7 +42,8 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
 
         # log n-th board.
         # n_th_board = population[len(population) - 10]
-        # print(n_th_board, n_th_board.fitness())
+        # print(n_th_board.board, n_th_board.fitness())
+        print("Current:", best.fitness(), "-", best.board)
         mutation_strategy.execute(population)
 
         # No solution found.
@@ -57,7 +58,8 @@ if __name__ == "__main__":
             Strategy_Swap_Mutation(mutation_rate=SWAP_RATE),
             Strategy_Scramble_Mutation(mutation_rate=SCRAMBLE_RATE),
             Strategy_Inversion_Mutation(mutation_rate=INVERSION_RATE),
-        ]
+        ],
+        verbose=False,
     )
     for i in range(RERUN_AMOUNT):
         print(solve(BOARD_SIZE, mutation_strats))
