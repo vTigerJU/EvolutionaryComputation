@@ -8,7 +8,7 @@ import numpy as np
 
 class Mutation_Strategy:
     def __init__(
-        self, strategies: list["Mutation_Strategy"] = [], verbose=False
+        self, strategies: list["Mutation_Strategy"] = [], verbose: bool = False
     ) -> None:
         self.strategies = strategies
         self.verbose = verbose
@@ -17,28 +17,52 @@ class Mutation_Strategy:
         self.mutate(population)
         for strategy in self.strategies:
             start = time.time()
+
             strategy.mutate(population)
+            self.sort(population)  # sort between strategy
+
             elapsed = time.time() - start
 
             if self.verbose:
+                # Calculate each strategy time: debugging purpose.
                 print(f"{strategy.__class__.__name__}: {elapsed * 1000:.2f}ms")
 
     def mutate(self, population: list[Board]):
         pass
 
+    def sort(self, population: list[Board]) -> None:
+        fitness_scores = np.array([board.fitness() for board in population])
+
+        top_indices = np.argsort(fitness_scores)[:]
+        population[:] = [population[i].clone() for i in top_indices]
+
+    def percent_of(self, any_number: int, percent: float) -> int:
+        clamped_percent = max(0, min(percent, 100))
+        return int(any_number * (clamped_percent / 100))
+
 
 class Strategy_Swap_Mutation(Mutation_Strategy):
     """Mutation by switching two columns/row"""
 
-    def __init__(self, mutation_rate: float = 0.1) -> None:
+    def __init__(
+        self,
+        mutation_rate: float = 0.1,
+        elite_size_percent: int = 10,
+    ) -> None:
         super().__init__()
         self.mutation_rate = mutation_rate
+        self.elite_size_percent = elite_size_percent
 
     def mutate(self, population: list[Board]):
         # numpy random generates between 0-1.
+        size = self.percent_of(len(population), self.elite_size_percent)  # keep top n%
         batch_generation = np.random.random(len(population)) < self.mutation_rate
 
         for board, should_mutate in zip(population, batch_generation):
+            # Exclude the top elites.
+            if size > 0:
+                size = size - 1
+                continue
             if should_mutate:
                 self._mutate_(board.board)
 
@@ -50,12 +74,19 @@ class Strategy_Swap_Mutation(Mutation_Strategy):
 class Strategy_Crossover(Mutation_Strategy):
     """Crossover operation - swap two node segment at random index"""
 
-    def __init__(self, crossover_probability: float = 0.8) -> None:
+    def __init__(
+        self,
+        crossover_probability: float = 0.8,
+        elite_size_percent: int = 10,
+        tournament_size: int = 20,
+    ) -> None:
         super().__init__()
         self.mutation_rate = crossover_probability
+        self.elite_size_percent = elite_size_percent
+        self.tournament_size = tournament_size
 
     def mutate(self, population: list[Board]):
-        size = max(1, len(population) // 10)  # keep top 10%
+        size = self.percent_of(len(population), self.elite_size_percent)  # keep top n%
 
         # pre calculate fitness scores. for faster lookup/find
         fitness_scores = np.array([board.fitness() for board in population])
@@ -64,20 +95,31 @@ class Strategy_Crossover(Mutation_Strategy):
         new_population = [population[i].clone() for i in top_indices]
 
         while len(new_population) < len(population):
+            # Exclude the top elites.
             choice_range = range(size, len(population))
 
             if random.random() < self.mutation_rate:
                 # Sample few random and pick the best.
-                node_a = np.random.choice(choice_range, size, replace=False)
-                node_b = np.random.choice(choice_range, size, replace=False)
 
-                # Get the best score.
-                nodeA = population[np.argmin(fitness_scores[node_a])]
-                nodeB = population[np.argmin(fitness_scores[node_b])]
+                # Tournament A
+                node_range_a = np.random.choice(
+                    choice_range, self.tournament_size, replace=False
+                )
+                nodeA = node_range_a[np.argmin(fitness_scores[node_range_a])]
+                node_a = population[nodeA]
 
-                new_population.extend(self.crossover(nodeA, nodeB))
+                # Tournament B
+                node_range_b = np.random.choice(
+                    choice_range, self.tournament_size, replace=False
+                )
+                nodeB = node_range_b[np.argmin(fitness_scores[node_range_b])]
+                node_b = population[nodeB]
+
+                new_population.extend(self.crossover(node_a, node_b))
             else:
-                nodes = np.random.choice(choice_range, size, replace=False)
+                nodes = np.random.choice(
+                    choice_range, self.tournament_size, replace=False
+                )
                 node_best = population[np.argmin(fitness_scores[nodes])]
                 new_population.append(node_best)
 
@@ -87,7 +129,6 @@ class Strategy_Crossover(Mutation_Strategy):
         copy_a = nodeA.clone()
         copy_b = nodeB.clone()
 
-        # indices = np.random.choice(len(copy_a.board), 2, replace=False)
         start, end = np.sort(np.random.choice(len(copy_a.board), 2, replace=False))
 
         nodeA_slice = copy_a.board[start:end]
@@ -101,14 +142,23 @@ class Strategy_Crossover(Mutation_Strategy):
 class Strategy_Scramble_Mutation(Mutation_Strategy):
     """Scramble mutation - shuffle a random segment"""
 
-    def __init__(self, mutation_rate=0.05) -> None:
+    def __init__(
+        self,
+        mutation_rate: float = 0.05,
+        elite_size_percent: int = 10,
+    ) -> None:
         super().__init__()
         self.mutation_rate = mutation_rate
+        self.elite_size_percent = elite_size_percent
 
     def mutate(self, population: list[Board]):
+        size = self.percent_of(len(population), self.elite_size_percent)  # keep top n%
         batch_generation = np.random.random(len(population)) < self.mutation_rate
 
         for board, should_mutate in zip(population, batch_generation):
+            # Exclude the top elites.
+            if size > 0:
+                size = size - 1
             if should_mutate:
                 start, end = np.sort(
                     np.random.choice(len(board.board), 2, replace=False)
@@ -121,14 +171,23 @@ class Strategy_Scramble_Mutation(Mutation_Strategy):
 class Strategy_Inversion_Mutation(Mutation_Strategy):
     """Inversion mutation - reverse a random segment"""
 
-    def __init__(self, mutation_rate=0.05) -> None:
+    def __init__(
+        self,
+        mutation_rate: float = 0.05,
+        elite_size_percent: int = 10,
+    ) -> None:
         super().__init__()
         self.mutation_rate = mutation_rate
+        self.elite_size_percent = elite_size_percent
 
     def mutate(self, population: list[Board]):
+        size = self.percent_of(len(population), self.elite_size_percent)  # keep top n%
         batch_generation = np.random.random(len(population)) < self.mutation_rate
 
         for board, should_mutate in zip(population, batch_generation):
+            # Exclude the top elites.
+            if size > 0:
+                size = size - 1
             if should_mutate:
                 start, end = np.sort(
                     np.random.choice(len(board.board), 2, replace=False)

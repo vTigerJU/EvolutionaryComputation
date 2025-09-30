@@ -9,10 +9,12 @@ from mutation import (
 )
 
 # Setup
-BOARD_SIZE = 20
+BOARD_SIZE = 50
 POPULATION_SIZE = 500
 MAXIMUM_GENERATION = 300
-RERUN_AMOUNT = 10
+ELITE_SIZE_PERCENT = 15
+TOURNAMENT_SIZE = 30
+RERUN_AMOUNT = 1
 
 # Probability
 CROSSOVER_PROBABILITY = 0.7
@@ -54,10 +56,20 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
 if __name__ == "__main__":
     mutation_strats = Mutation_Strategy(
         [
-            Strategy_Crossover(crossover_probability=CROSSOVER_PROBABILITY),
-            Strategy_Swap_Mutation(mutation_rate=SWAP_RATE),
-            Strategy_Scramble_Mutation(mutation_rate=SCRAMBLE_RATE),
-            Strategy_Inversion_Mutation(mutation_rate=INVERSION_RATE),
+            Strategy_Crossover(
+                crossover_probability=CROSSOVER_PROBABILITY,
+                elite_size_percent=ELITE_SIZE_PERCENT,
+                tournament_size=TOURNAMENT_SIZE,
+            ),
+            Strategy_Swap_Mutation(
+                mutation_rate=SWAP_RATE, elite_size_percent=ELITE_SIZE_PERCENT
+            ),
+            Strategy_Scramble_Mutation(
+                mutation_rate=SCRAMBLE_RATE, elite_size_percent=ELITE_SIZE_PERCENT
+            ),
+            Strategy_Inversion_Mutation(
+                mutation_rate=INVERSION_RATE, elite_size_percent=ELITE_SIZE_PERCENT
+            ),
         ],
         verbose=False,
     )
