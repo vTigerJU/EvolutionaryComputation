@@ -1,10 +1,12 @@
 import random
 import time
+from inversion import inversion_mutate
 
 maximum_generation = 300
-population_size = 200
+population_size = 300
 mutation_rate = 0.2
 crossover_rate = 0.2
+inversion_rate = 0.15
 
 
 def random_solution(size):
@@ -72,9 +74,10 @@ def crossover_twopoint(nodeA, nodeB):
 
 
 def mutate(node):
-    """Mutation by switching two columns"""
     i, j = random.sample(range(len(node)), 2)
     node[i], node[j] = node[j], node[i]
+
+    inversion_mutate(node, rate=inversion_rate)
 
 
 def repair(node):
@@ -122,7 +125,7 @@ def solve(n_size, do_crossover):
 
 if __name__ == "__main__":
     for i in range(20):
-        print(solve(80, False))
+        print(solve(100, False))
     print("crossover")
     for i in range(20):
-        print(solve(80, True))
+        print(solve(100, True))
