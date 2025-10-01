@@ -8,13 +8,24 @@ from mutation import (
     Strategy_Scramble_Mutation,
 )
 
-BOARD_SIZE = 100
-MAXIMUM_GENERATION = 1500
-POPULATION_SIZE = 900
-CROSSOVER_PROBABILITY = 0.9
-SWAP_RATE = 0.40
-SCRAMBLE_RATE = 0.1
+# Setup
+BOARD_SIZE = 50
+POPULATION_SIZE = 500
+MAXIMUM_GENERATION = 300
+ELITE_SIZE_PERCENT = 15
+TOURNAMENT_SIZE = 30
+RERUN_AMOUNT = 1
+
+# Probability
+CROSSOVER_PROBABILITY = 0.7
+SWAP_RATE = 0.1
+SCRAMBLE_RATE = 0.05
 INVERSION_RATE = 0.05
+
+
+def write_to_file(board: Board) -> None:
+    with open("./solution.txt", "a+") as f:
+        print(board.board, file=f)
 
 
 def solve(n_size, mutation_strategy: Mutation_Strategy):
@@ -28,6 +39,9 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
 
         if best.fitness() == 0:
             elapsed = time.time() - start
+            # Write the solution into file.
+            write_to_file(best)
+
             return {
                 "n": n_size,
                 "gen": generation,
@@ -36,21 +50,43 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
                 "found": True,
             }
 
+        # log n-th board.
+        # n_th_board = population[len(population) - 10]
+        # print(n_th_board.board, n_th_board.fitness())
+        print(
+            "Current score:",
+            best.fitness(),
+            "-",
+            best.board,
+            f"{(time.time() - start) * 1000:.1f}ms",
+        )
         mutation_strategy.execute(population)
 
         # No solution found.
         if generation + 1 == MAXIMUM_GENERATION:
-            return best.fitness()
+            write_to_file(best)
+            return f"No perfect solution found: current fitness: {best.fitness()}"
 
 
 if __name__ == "__main__":
     mutation_strats = Mutation_Strategy(
         [
-            Strategy_Crossover(crossover_probability=CROSSOVER_PROBABILITY),
-            Strategy_Swap_Mutation(mutation_rate=SWAP_RATE),
-            Strategy_Scramble_Mutation(mutation_rate=SCRAMBLE_RATE),
-            Strategy_Inversion_Mutation(mutation_rate=INVERSION_RATE),
-        ]
+            Strategy_Crossover(
+                crossover_probability=CROSSOVER_PROBABILITY,
+                elite_size_percent=ELITE_SIZE_PERCENT,
+                tournament_size=TOURNAMENT_SIZE,
+            ),
+            Strategy_Swap_Mutation(
+                mutation_rate=SWAP_RATE, elite_size_percent=ELITE_SIZE_PERCENT
+            ),
+            Strategy_Scramble_Mutation(
+                mutation_rate=SCRAMBLE_RATE, elite_size_percent=ELITE_SIZE_PERCENT
+            ),
+            Strategy_Inversion_Mutation(
+                mutation_rate=INVERSION_RATE, elite_size_percent=ELITE_SIZE_PERCENT
+            ),
+        ],
+        verbose=False,
     )
-    for i in range(10):
-        print(solve(10, mutation_strats))
+    for i in range(RERUN_AMOUNT):
+        print(solve(BOARD_SIZE, mutation_strats))
