@@ -2,8 +2,8 @@ import random
 import time
 from inversion import inversion_mutate
 
-maximum_generation = 300
-population_size = 300
+maximum_generation = 1000
+population_size = 260
 mutation_rate = 0.2
 crossover_rate = 0.2
 inversion_rate = 0.15
@@ -31,6 +31,17 @@ def count_conflicts(node):
                 count += 1
     return count
 
+def count_conflicts_fast(node):
+    d1, d2 = {}, {}
+    for c, r in enumerate(node):
+        d1[c - r] = d1.get(c - r, 0) + 1
+        d2[c + r] = d2.get(c + r, 0) + 1
+    conf = 0
+    for k in d1.values():
+        if k > 1: conf += k*(k-1)//2
+    for k in d2.values():
+        if k > 1: conf += k*(k-1)//2
+    return conf
 
 def crossover(nodeA, nodeB):
     """Swaps last half from each node"""
@@ -94,9 +105,9 @@ def solve(n_size, do_crossover):
     population = [random_solution(n_size) for _ in range(population_size)]
 
     for generation in range(maximum_generation):
-        population.sort(key=count_conflicts)
+        population.sort(key=count_conflicts_fast)
         best = population[0]
-        if count_conflicts(best) == 0:
+        if count_conflicts_fast(best) == 0:
             elapsed = time.time() - start
             return {
                 "n": n_size,
@@ -106,14 +117,10 @@ def solve(n_size, do_crossover):
                 "found": True,
             }
 
-        new_pop = population[:50]
-        if do_crossover:
-            for i in range(20):
-                nodeA, nodeB = crossover(new_pop[i], new_pop[i * 2])
-                new_pop.append(nodeA)
-                new_pop.append(nodeB)
+        new_pop = population[:10]
+     
         while len(new_pop) < population_size:
-            parent = random.choice(population[:50])[:]
+            parent = random.choice(population[:15])[:]
             mutate(parent)
             new_pop.append(parent)
 
@@ -125,7 +132,4 @@ def solve(n_size, do_crossover):
 
 if __name__ == "__main__":
     for i in range(20):
-        print(solve(100, False))
-    print("crossover")
-    for i in range(20):
-        print(solve(100, True))
+        print(solve(200, False))
