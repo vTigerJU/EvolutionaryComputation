@@ -1,12 +1,12 @@
 import random
 import time
 
-maximum_generation = 500
-population_size = 1000
+maximum_generation = 2000
+#population_size = 200
 #mutation_rate = 0.2
 #crossover_rate = 0.2
-elite_frac = 0.1        # fraction of population preserved unchanged
-parent_pool_frac = 0.40   # fraction of top population used for parent selection (must be >= elite_frac)
+elite_frac = 0.04       # fraction of population preserved unchanged
+parent_pool_frac = 0.07   # fraction of top population used for parent selection (must be >= elite_frac)
 
 
 def random_solution(size):
@@ -100,6 +100,7 @@ def repair(node):
 
 
 def solve(n_size, do_crossover):
+    population_size = int(n_size*1.3)
     start = time.time()
     population = [random_solution(n_size) for _ in range(population_size)]
 
@@ -118,6 +119,8 @@ def solve(n_size, do_crossover):
                 "time_s": elapsed,
                 # "solution": best,
                 "found": True,
+                "elite_frac": elite_frac,
+                "parent_pool_frac": parent_pool_frac
             }
 
         new_pop = population[:elite_k]
@@ -138,8 +141,8 @@ def solve(n_size, do_crossover):
 
 
 if __name__ == "__main__":
-    for i in range(20):
-        print(solve(50, False))
+    for i in range(10):
+        print(solve(200, False))
     #print("crossover")
     #for i in range(20):
      #   print(solve(80, True))
