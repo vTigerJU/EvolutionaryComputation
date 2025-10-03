@@ -75,5 +75,35 @@ if __name__ == "__main__":
         board_size=BOARD_SIZE,
         strategies=mutation_strats,
     )
-    for i in range(RERUN_AMOUNT):
-        print(solve(BOARD_SIZE, mutation_strats))
+
+    has_solutions = [result.is_found for result in results]
+    solution_score = [result.solution.fitness() for result in results]
+    avg_generation = [result.gen for result in results]
+    avg_time = [result.time_s for result in results]
+
+    print("┌" + "─" * 58 + "┐")
+    print("│" + " GENETIC ALGORITHM RESULTS".center(58) + "│")
+    print("├" + "─" * 58 + "┤")
+
+    avg_rate = f"{round(average(has_solutions) * 100, 2)}%"
+    avg_fitness = round(average(solution_score), 2)
+    avg_gen = round(average(avg_generation), 2)
+    avg_time = f"{round(average(avg_time), 2)}ms"
+    print(f"│ {'Success rate ':.<20} │ {avg_rate:<33} │")
+    print(f"│ {'Average fitness ':.<20} │ {avg_fitness:<33} │")
+    print(f"│ {'Average generation ':.<20} │ {avg_gen:<33} │")
+    print(f"│ {'Average time ':.<20} │ {avg_time:<33} │")
+
+    print("├" + "─" * 58 + "┤")
+    print("│" + " BEST SOLUTION".center(58) + "│")
+    print("├" + "─" * 58 + "┤")
+
+    results.sort(key=lambda x: x.solution.fitness())
+    best = results[0]
+
+    status = "SOLVED ✓" if best.is_found else "PARTIAL ✘"
+    print(f"│ {'Status ':.<20} │ {status:<33} │")
+    print(f"│ {'Best Fitness ':.<20} │ {best.solution.fitness():<33} │")
+    print(f"│ {'Generation Found ':.<20} │ {best.gen:<33} │")
+    print(f"│ {'Time Taken ':.<20} │ {best.time_s_str:<33} │")
+    print("└" + "─" * 58 + "┘")
