@@ -9,7 +9,13 @@ from mutation import (
     Mutation_Strategy,
     Strategy_Scramble_Mutation,
 )
-from util import Solve_Result, run_taks_in_parallel, write_to_file
+from util import (
+    Solve_Result,
+    delete_write_file,
+    log_board_info,
+    run_taks_in_parallel,
+    write_to_file,
+)
 
 # Setup
 BOARD_SIZE = 50
@@ -26,7 +32,7 @@ SCRAMBLE_RATE = 0.05
 INVERSION_RATE = 0.05
 
 
-def solve(n_size, mutation_strategy: Mutation_Strategy):
+def solve(n_size, mutation_strategy: Mutation_Strategy, thread_number: int = 1):
     start = time.time()
     population = [Board(n_size) for _ in range(POPULATION_SIZE)]
 
@@ -36,15 +42,16 @@ def solve(n_size, mutation_strategy: Mutation_Strategy):
 
         if best.fitness() == 0:
             # Write the solution into file.
-            write_to_file(best)
+            # write_to_file(best)
             return Solve_Result(n_size, generation, start, best)
 
-        # log_board_info(best, start)
+        # For displaying progress purpose. (kinda)
+        log_board_info(best, start, thread_number)
         mutation_strategy.execute(population)
 
         # No solution found.
         if generation + 1 == MAXIMUM_GENERATION:
-            write_to_file(best)
+            # write_to_file(best)
             return Solve_Result(n_size, generation, start, best)
 
 
@@ -69,6 +76,7 @@ mutation_strats = Mutation_Strategy(
 )
 
 if __name__ == "__main__":
+    # Spawn thread for every rerun.
     results = run_taks_in_parallel(
         count=RERUN_AMOUNT,
         solve_task=solve,
@@ -76,12 +84,21 @@ if __name__ == "__main__":
         strategies=mutation_strats,
     )
 
+    # delete the write file to remove old results.
+    delete_write_file()
+    for result in results:
+        if result.is_found:
+            # Only write the valid solutions to the file.
+            write_to_file(result.solution)
+
+    # Statistics and display in the terminal
     has_solutions = [result.is_found for result in results]
     solution_score = [result.solution.fitness() for result in results]
     avg_generation = [result.gen for result in results]
     avg_time = [result.time_s for result in results]
 
-    print("┌" + "─" * 58 + "┐")
+    # Fit everything in a 58 char length.
+    print("\n┌" + "─" * 58 + "┐")
     print("│" + " GENETIC ALGORITHM RESULTS".center(58) + "│")
     print("├" + "─" * 58 + "┤")
 
@@ -98,6 +115,7 @@ if __name__ == "__main__":
     print("│" + " BEST SOLUTION".center(58) + "│")
     print("├" + "─" * 58 + "┤")
 
+    # Extract the best run out of all reruns.
     results.sort(key=lambda x: x.solution.fitness())
     best = results[0]
 
@@ -106,4 +124,4 @@ if __name__ == "__main__":
     print(f"│ {'Best Fitness ':.<20} │ {best.solution.fitness():<33} │")
     print(f"│ {'Generation Found ':.<20} │ {best.gen:<33} │")
     print(f"│ {'Time Taken ':.<20} │ {best.time_s_str:<33} │")
-    print("└" + "─" * 58 + "┘")
+    print("└" + "─" * 58 + "┘\n")

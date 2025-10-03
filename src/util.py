@@ -1,4 +1,5 @@
 from concurrent.futures.process import ProcessPoolExecutor
+from os import remove
 import time
 
 from chess import Board
@@ -23,11 +24,16 @@ def write_to_file(board: Board) -> None:
         print(board.board, file=f)
 
 
-def log_board_info(board: Board, start_time: float) -> None:
+def delete_write_file() -> None:
+    remove("./solution.txt")
+
+
+def log_board_info(board: Board, start_time: float, thread_num: int = 1) -> None:
     # log n-th board.
     # n_th_board = population[len(population) - 10]
     # print(n_th_board.board, n_th_board.fitness())
     print(
+        f"[ {thread_num:<2} ]",
         "Current score:",
         board.fitness(),
         "-",
@@ -41,7 +47,8 @@ def run_taks_in_parallel(
 ) -> list[Solve_Result]:
     with ProcessPoolExecutor() as executor:
         running_tasks = [
-            executor.submit(solve_task, board_size, strategies) for _ in range(count)
+            executor.submit(solve_task, board_size, strategies, i + 1)
+            for i in range(count)
         ]
         results = [task.result() for task in running_tasks]
 
