@@ -48,7 +48,7 @@ def mutate(node):
     i, j = random.sample(range(len(node)), 2)
     node[i], node[j] = node[j], node[i]
 
-def solve(n_size, do_crossover):
+def solve(n_size):
     population_size = int(n_size*1.3)
     start = time.time()
     population = [random_solution(n_size) for _ in range(population_size)]

@@ -65,9 +65,22 @@ def plot_pop_test(df):
     axis[1].plot(df200["population_size"],df200["avg_time_s"])
     plt.show()
 
+def plot_n_test(df):
+    n = "n"
+    t = "avg_time_s"
+    df = df[df["tag"]=="ntest"]
+    df0 = df[df['inversion_rate'] == 0]
+    df1 = df[df["inversion_rate"]== 0.1]
+    plt.plot(df0[n],df0[t],label="0")
+    plt.plot(df1[n],df1[t],label="1.0")
+    plt.xlabel("n-size")
+    plt.ylabel("Average Time (s)")
+    plt.legend()
+    plt.show()
+
 def plot_results(results):
     df = pd.DataFrame(results)
-    
+    plot_n_test(df)
     plot_rate_narrow(df)
     plot_pop_test(df)
     plot_rate(df)

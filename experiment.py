@@ -1,5 +1,5 @@
 import nqueens
-import nqueensEmilMutation
+import nqueensEmilMutation as emil
 import json
     
 def solve_multiple(n_size, sample_size, population_size, inversion_rate, tag):
@@ -8,6 +8,7 @@ def solve_multiple(n_size, sample_size, population_size, inversion_rate, tag):
     number_failures = 0
     for _ in range(sample_size):
         solution = nqueens.solve(n_size, population_size,inversion_rate)
+        print(solution)
         try:
             avg_gen += solution.get("gen")
             avg_time_s += solution.get("time_s")
@@ -17,7 +18,6 @@ def solve_multiple(n_size, sample_size, population_size, inversion_rate, tag):
     if sample_size != number_failures:
         avg_gen = avg_gen/(sample_size - number_failures)
         avg_time_s = avg_time_s/(sample_size - number_failures)
-
     return {
         "n": n_size,
         "population_size": population_size,
@@ -33,8 +33,8 @@ def population_experiment():
     results = []
     population_size = 50
     for i in range(1,25):
-        results.append(solve_multiple(100,25,population_size*i,"pop"))
-        results.append(solve_multiple(200,25,population_size*i,"pop"))
+        results.append(solve_multiple(100,25,population_size*i,0.15,"pop"))
+        results.append(solve_multiple(200,25,population_size*i,0.15,"pop"))
     return results
 
 def inversion_rate_experiment():
@@ -59,6 +59,15 @@ def inversion_rate_experiment_narrow():
         inversion_rate += 0.05
     return results
 
+def n_size_test():
+    results = []
+    n_size = 50
+    for i in range(13,14):
+        print(n_size*i)
+        results.append(solve_multiple(n_size*i, 25, 300, 0,"ntest"))
+        results.append(solve_multiple(n_size*i, 25, 300, 0.1,"ntest"))
+    return results
+
 def experiment():
     file_path = "results.json"
     try:
@@ -69,7 +78,8 @@ def experiment():
     results = []
     #results += population_experiment()
     #results += inversion_rate_experiment()
-    results += inversion_rate_experiment_narrow()
+    #results += inversion_rate_experiment_narrow()
+    results += n_size_test()
     data += results
     with open(file_path, "w") as file:
         file.write("[\n")
@@ -80,5 +90,6 @@ def experiment():
             else:
                 file.write("\n")
         file.write("]")
+
 if __name__ == "__main__":
     experiment()
