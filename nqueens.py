@@ -5,17 +5,14 @@ from inversion import inversion_mutate
 maximum_generation = 1000
 
 def random_solution(size):
-    """Creates a "board" of size n with no vertical or horizontal collisions
-    index -> column
-    value at index i -> row
-    """
+    """Creates a "board" of size n with no vertical or horizontal collisions"""
     node = list(range(size))
     random.shuffle(node)
     return node
 
 def count_conflicts_fast(node):
     d1, d2 = {}, {}
-    for c, r in enumerate(node):
+    for c, r in enumerate(node): #Counts queens on both diagonals
         d1[c - r] = d1.get(c - r, 0) + 1
         d2[c + r] = d2.get(c + r, 0) + 1
     conf = 0
@@ -26,39 +23,45 @@ def count_conflicts_fast(node):
     return conf
 
 def mutate(node, inversion_rate):
+    """Swaps the position of two random queens"""
     i, j = random.sample(range(len(node)), 2)
     node[i], node[j] = node[j], node[i]
 
-    inversion_mutate(node, rate=inversion_rate)
+    inversion_mutate(node, rate=inversion_rate) 
 
 def solve(n_size, population_size, inversion_rate):
     start = time.time()
-    population = [random_solution(n_size) for _ in range(population_size)]
+    population = [random_solution(n_size) for _ in range(population_size)] #Fill population with random solutions
 
-    for generation in range(maximum_generation):
-        population.sort(key=count_conflicts_fast)
-        best = population[0]
-        if count_conflicts_fast(best) == 0:
+    for generation in range(maximum_generation): #Iterating over generations
+        population.sort(key=count_conflicts_fast) #Sort population
+        best = population[0] #Solution with the least conflicts
+        if count_conflicts_fast(best) == 0: #Solution found
             elapsed = time.time() - start
             return {
                 "n": n_size,
                 "gen": generation,
                 "time_s": elapsed,
-                # "solution": best,
                 "found": True,
             }
 
-        new_pop = population[:10]
+        new_pop = population[:10] #Keep 10 best solutions
      
-        while len(new_pop) < population_size:
-            parent = random.choice(population[:15])[:]
+        while len(new_pop) < population_size: #Fill out the new population with mutations
+            parent = random.choice(population[:15])[:] #Mutate top 15
             mutate(parent, inversion_rate)
             new_pop.append(parent)
 
         population = new_pop
 
         if generation + 1 == maximum_generation:
-            return count_conflicts_fast(best)
+            elapsed = time.time() - start
+            return {
+                "n": n_size,
+                "gen": generation,
+                "time_s": elapsed,
+                "found": False,
+            }
 
 
 if __name__ == "__main__":

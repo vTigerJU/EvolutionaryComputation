@@ -128,5 +128,9 @@
 {"n": 600, "population_size": 300, "avg_gen": 711.91, "avg_time_s": 48.07, "failures": 3, "inversion_rate": 0, "max_gen": 1000, "tag": "ntest"},
 {"n": 600, "population_size": 300, "avg_gen": 727.04, "avg_time_s": 50.56, "failures": 1, "inversion_rate": 0.1, "max_gen": 1000, "tag": "ntest"},
 {"n": 650, "population_size": 300, "avg_gen": 729.8, "avg_time_s": 52.85, "failures": 0, "inversion_rate": 0, "max_gen": 1000, "tag": "ntest"},
-{"n": 650, "population_size": 300, "avg_gen": 800.96, "avg_time_s": 59.83, "failures": 2, "inversion_rate": 0.1, "max_gen": 1000, "tag": "ntest"}
+{"n": 650, "population_size": 300, "avg_gen": 800.96, "avg_time_s": 59.83, "failures": 2, "inversion_rate": 0.1, "max_gen": 1000, "tag": "ntest"},
+{"n": 700, "population_size": 300, "avg_gen": 775.38, "avg_time_s": 61.39, "failures": 4, "inversion_rate": 0, "max_gen": 1000, "tag": "ntest"},
+{"n": 700, "population_size": 300, "avg_gen": 800.26, "avg_time_s": 65.34, "failures": 6, "inversion_rate": 0.1, "max_gen": 1000, "tag": "ntest"},
+{"n": 750, "population_size": 300, "avg_gen": 819.6, "avg_time_s": 69.39, "failures": 5, "inversion_rate": 0, "max_gen": 1000, "tag": "ntest"},
+{"n": 750, "population_size": 300, "avg_gen": 914.27, "avg_time_s": 80.46, "failures": 10, "inversion_rate": 0.1, "max_gen": 1000, "tag": "ntest"}
 ]
