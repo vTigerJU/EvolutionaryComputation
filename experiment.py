@@ -1,14 +1,17 @@
 import nqueens
 import json
+import crossover
     
-def solve_multiple(n_size, sample_size, population_size, inversion_rate, tag):
+def solve_multiple(n_size, sample_size, population_size, inversion_rate,crossover_rate, tag):
     avg_gen = 0
     avg_time_s = 0
     number_failures = 0
    
     for _ in range(sample_size):
-       
-        solution = nqueens.solve(n_size, population_size,inversion_rate)
+        if crossover_rate > 0:
+            solution = crossover.solve(n_size,population_size,crossover_rate)
+        else:
+            solution = nqueens.solve(n_size, population_size,inversion_rate)
         print(solution)
         if solution.get("found") == True:
             avg_gen += solution.get("gen")
@@ -27,6 +30,7 @@ def solve_multiple(n_size, sample_size, population_size, inversion_rate, tag):
         "avg_time_s": round(avg_time_s,2),
         "failures": number_failures,
         "inversion_rate": inversion_rate,
+        "crossover_rate": round(crossover_rate,2),
         "max_gen": 1000,
         "tag": tag
     }
@@ -35,8 +39,8 @@ def population_experiment():
     results = []
     population_size = 50
     for i in range(1,25): #50-1250
-        results.append(solve_multiple(100,25,population_size*i,0.15,"pop"))
-        results.append(solve_multiple(200,25,population_size*i,0.15,"pop"))
+        results.append(solve_multiple(100,25,population_size*i,0.15,0,"pop"))
+        results.append(solve_multiple(200,25,population_size*i,0.15,0,"pop"))
     return results
 
 def inversion_rate_experiment():
@@ -44,7 +48,7 @@ def inversion_rate_experiment():
     inversion_rate = 0
     for _ in range(20): #0 - 1.0
         print(inversion_rate)
-        results.append(solve_multiple(100,25,400, inversion_rate,"ir"))
+        results.append(solve_multiple(100,25,400, inversion_rate,0,"ir"))
         inversion_rate += 0.05
     return results
 
@@ -56,7 +60,7 @@ def inversion_rate_experiment_narrow():
         n_size = 50
         while n_size <= 250:
             print("n_size", n_size)
-            results.append(solve_multiple(n_size,25,400, inversion_rate,"irn"))
+            results.append(solve_multiple(n_size,25,400, inversion_rate,0,"irn"))
             n_size += 50
         inversion_rate += 0.05
     return results
@@ -66,12 +70,26 @@ def n_size_test():
     n_size = 50
     for i in range(1,16): #50-750
         print(n_size*i)
-        results.append(solve_multiple(n_size*i, 25, 300, 0,"ntest"))
-        results.append(solve_multiple(n_size*i, 25, 300, 0.1,"ntest"))
+        results.append(solve_multiple(n_size*i, 25, 300, 0,0,"ntest"))
+        results.append(solve_multiple(n_size*i, 25, 300, 0.1,0,"ntest"))
     return results
 
+def crossover_test():
+    results = []
+    crossover_rate = 0
+    for i in range(10):
+        print(crossover_rate)
+        results.append(solve_multiple(60,25,400,0,crossover_rate,"cross"))
+        crossover_rate += 0.1
+    return results
+
+def convergence():
+    results = []
+    for i in range(25):
+        temp = nqueens.solve_track_generation(100,400,0)
+
 def experiment():
-    file_path = "results3.json"
+    file_path = "results.json"
     try:
         with open(file_path, "r") as file:
             data = json.load(file)
@@ -80,8 +98,9 @@ def experiment():
     results = []
     #results += population_experiment()
     #results += inversion_rate_experiment()
-    results += inversion_rate_experiment_narrow()
+    #results += inversion_rate_experiment_narrow()
     #results += n_size_test()
+    results += crossover_test()
     data += results
     with open(file_path, "w") as file:
         file.write("[\n")

@@ -29,6 +29,28 @@ def mutate(node, inversion_rate):
 
     inversion_mutate(node, rate=inversion_rate) 
 
+def solve_track_generation(n_size, population_size, inversion_rate):
+    population = [random_solution(n_size) for _ in range(population_size)] #Fill population with random solutions
+    best_fitness = []
+    for generation in range(maximum_generation): #Iterating over generations
+        population.sort(key=count_conflicts_fast) #Sort population
+        best = population[0] #Solution with the least conflicts
+        best_fitness.append(count_conflicts_fast(best))
+        if count_conflicts_fast(best) == 0: #Solution found
+            return best_fitness
+
+        new_pop = population[:10] #Keep 10 best solutions
+     
+        while len(new_pop) < population_size: #Fill out the new population with mutations
+            parent = random.choice(population[:15])[:] #Mutate top 15
+            mutate(parent, inversion_rate)
+            new_pop.append(parent)
+
+        population = new_pop
+
+        if generation + 1 == maximum_generation:
+            return best_fitness
+
 def solve(n_size, population_size, inversion_rate):
     start = time.time()
     population = [random_solution(n_size) for _ in range(population_size)] #Fill population with random solutions
