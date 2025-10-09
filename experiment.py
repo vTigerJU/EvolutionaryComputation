@@ -77,16 +77,11 @@ def n_size_test():
 def crossover_test():
     results = []
     crossover_rate = 0
-    for i in range(10):
+    for i in range(11):#0.0 - 1.0
         print(crossover_rate)
         results.append(solve_multiple(60,25,400,0,crossover_rate,"cross"))
         crossover_rate += 0.1
     return results
-
-def convergence():
-    results = []
-    for i in range(25):
-        temp = nqueens.solve_track_generation(100,400,0)
 
 def experiment():
     file_path = "results.json"
@@ -96,10 +91,10 @@ def experiment():
     except:
         data = []
     results = []
-    #results += population_experiment()
-    #results += inversion_rate_experiment()
-    #results += inversion_rate_experiment_narrow()
-    #results += n_size_test()
+    results += population_experiment()
+    results += inversion_rate_experiment()
+    results += inversion_rate_experiment_narrow()
+    results += n_size_test()
     results += crossover_test()
     data += results
     with open(file_path, "w") as file:

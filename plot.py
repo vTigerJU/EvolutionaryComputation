@@ -72,7 +72,7 @@ def plot_n_test(df):
     df0 = df[df['inversion_rate'] == 0]
     df1 = df[df["inversion_rate"]== 0.1]
     plt.plot(df0[n],df0[t],label="0")
-    plt.plot(df1[n],df1[t],label="1.0")
+    plt.plot(df1[n],df1[t],label="0.1")
     plt.xlabel("n-size")
     plt.ylabel("Average Time (s)")
     plt.legend()

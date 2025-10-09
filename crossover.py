@@ -1,6 +1,5 @@
 import random
 import time
-import copy
 
 maximum_generation = 500
 
@@ -8,6 +7,12 @@ def random_solution(size):
     """Creates a "board" of size n with no vertical or horizontal collisions"""
     node = list(range(size))
     random.shuffle(node)
+    return node
+
+def mutate(node):
+    """Mutation by switching two columns"""
+    i, j = random.sample(range(len(node)), 2)
+    node[i], node[j] = node[j], node[i]
     return node
 
 def count_conflicts(node):
@@ -25,21 +30,19 @@ def count_conflicts(node):
         if k > 1: conf += k*(k-1)//2
     return conf
 
-def tournamentSelection2(population, tournamentSize):
+def crossover_twopoint(nodeA, nodeB):
+    """Crossover between two random points in list"""
+    size = len(nodeA)
+    ix1, ix2 = sorted(random.sample(range(size), 2))
+    
+    child = nodeA[:ix1] + nodeB[ix1:ix2] + nodeA[ix2:]
+    return child
+
+def tournamentSelection(population, tournamentSize):
     """Returns Best state out of n random choices"""
     size = len(population)
     ixList = sorted(random.sample(range(size), tournamentSize))
     return population[ixList[0]], population[ixList[1]]
-
-def rankingSelection(population):
-    """Linear ranking selection y = 0 -> i=20"""
-    m = 0.8
-    k = -0.04
-    for i in range(len(population)):
-        if k*i + m  <= 0:
-            return population[i]
-        if random.random() < (k*i + m):
-            return population[i]
 
 def tournamentPicking(population, elitism,crossover_rate):
     """Crossover using tournament selection"""
@@ -49,7 +52,7 @@ def tournamentPicking(population, elitism,crossover_rate):
 
     while len(new_population) < len(population):
         if random.random() < crossover_rate:
-            parentA, parentB = tournamentSelection2(population[:size_elitism], tournamentSize)
+            parentA, parentB = tournamentSelection(population[:size_elitism], tournamentSize)
             child = crossover_twopoint(parentA, parentB)
             new_population.append(child)
         else:
@@ -57,20 +60,6 @@ def tournamentPicking(population, elitism,crossover_rate):
             parentA = random.choice(population[:size_elitism])[:]
             new_population.append(mutate(parentA))
     return new_population[: len(population)]
-
-def crossover_twopoint(nodeA, nodeB):
-    """Crossover between two random points in list"""
-    size = len(nodeA)
-    ix1, ix2 = sorted(random.sample(range(size), 2))
-    
-    child = nodeA[:ix1] + nodeB[ix1:ix2] + nodeA[ix2:]
-    return child
-
-def mutate(node):
-    """Mutation by switching two columns"""
-    i, j = random.sample(range(len(node)), 2)
-    node[i], node[j] = node[j], node[i]
-    return node
 
 def solve(n_size, population_size,crossover_rate):
     start = time.time()
